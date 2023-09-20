@@ -20,6 +20,11 @@ public class Exercise1_LS4 {
         System.out.println("Order Total: £"+order_value);
         System.out.println("Deposit paid: £"+deposit_amount);
         System.out.println("Remainder: £"+(order_value-deposit_amount));
-        System.out.println("You get a free toaster!\nHave a nice day");
+        if(deposit_amount > 100){
+            System.out.println("You get a free toaster!");
+        }else{
+            System.out.println("Enjoy your mug!");
+        }
+        System.out.println("Have a nice day");
     }
 }
