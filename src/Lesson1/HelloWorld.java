@@ -1,3 +1,5 @@
+package Lesson1;
+
 /**
  * My First Program
  * @author Markas Krikstaponis

@@ -1,3 +1,5 @@
+package Lesson4;
+
 import java.util.Scanner;
 
 public class Extra3_LS4 {

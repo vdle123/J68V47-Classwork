@@ -1,3 +1,5 @@
+package Lesson2;
+
 import java.util.*;
 
 public class Exercise3_LS2 {

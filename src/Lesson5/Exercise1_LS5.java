@@ -1,3 +1,5 @@
+package Lesson5;
+
 import java.util.Scanner;
 
 public class Exercise1_LS5 {

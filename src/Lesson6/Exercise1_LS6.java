@@ -1,3 +1,5 @@
+package Lesson6;
+
 public class Exercise1_LS6 {
     public static void main(String[] args) {
        int num = 10;

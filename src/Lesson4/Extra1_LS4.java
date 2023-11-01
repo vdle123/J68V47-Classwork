@@ -1,3 +1,5 @@
+package Lesson4;
+
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 public class Extra1_LS4 {
