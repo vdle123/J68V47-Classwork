@@ -12,12 +12,13 @@ import java.io.*;
 import java.time.LocalDate;
 
 public class Main_test extends JFrame implements ActionListener {
+    ImageIcon mainicon = new ImageIcon(("Images/logo.png"));
     static Date_Manager date_manager = new Date_Manager(); //access date manager class
     static double saveprotein = 0;
     static int savecalories = 0;
     static JButton add_food_button, set_goals, see_logs;
     static JFrame f, logs_frame;
-    static JLabel l, logs_label,calorie_label,protein_label, space_label;
+    static JLabel l, logs_label,calorie_label,protein_label, space_label, date_label;
     static JTable log_table;
     static String food_name = "";
     String calories_input = "";
@@ -28,17 +29,21 @@ public class Main_test extends JFrame implements ActionListener {
     static double protein_goal = 0;
 
     static String[]goalsdata = {"",""};
+    static Color verydarkgray = new Color(27,27,27);
 
     Boolean show_food_label = false; //if true it will show a label that food has been added.
     JPanel buttons = new JPanel();
     JPanel MainLabels = new JPanel();
     Main_test() {
+        //System.out.println("Resource URL: " + "../../Images/logo.png");
         goals_reader();
-        f = new JFrame("panel");
+        f = new JFrame("Calorie Tracker");
+        f.setIconImage(mainicon.getImage());
         l = new JLabel("");
         calorie_label = new JLabel("");
         protein_label = new JLabel("");
         space_label = new JLabel("");
+        date_label = new JLabel("");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         add_food_button = new JButton("Add Food");
@@ -220,8 +225,8 @@ public class Main_test extends JFrame implements ActionListener {
             }
         });
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
-        buttons.setBorder(new EmptyBorder(new Insets(150, 100, 150, 100)));
-        buttons.setBackground(Color.BLACK);
+        buttons.setBorder(new EmptyBorder(new Insets(150, 100, 115, 100)));
+        buttons.setBackground(verydarkgray);
 
 
         Dimension buttonSize = new Dimension(90,5);
@@ -231,21 +236,21 @@ public class Main_test extends JFrame implements ActionListener {
 
 
         JPanel panel = new JPanel(new GridLayout(1,3, 20,0));
-        panel.setBackground(Color.BLACK);
+        panel.setBackground(verydarkgray);
         panel.add(add_food_button);
         panel.add(set_goals);
         panel.add(see_logs);
 
 
         MainLabels.setLayout(new BoxLayout(MainLabels, BoxLayout.Y_AXIS));
-        MainLabels.setBorder(new EmptyBorder(new Insets(10, 15, 5, 100)));
+        MainLabels.setBorder(new EmptyBorder(new Insets(30, 130, 5, 100)));
 
         l.setText("CALORIE TRACKER");
-        l.setFont(new Font("Verdana",Font.BOLD,14));
+        l.setFont(new Font("Verdana",Font.BOLD,20));
         l.setForeground(Color.LIGHT_GRAY);
 
         calorie_label.setText("CALORIES: 0/"+goalsdata[0]);
-        calorie_label.setFont(new Font("Verdana",Font.BOLD,14));
+        calorie_label.setFont(new Font("Verdana",Font.BOLD,20));
         calorie_label.setForeground(Color.LIGHT_GRAY);
 
         space_label.setText(" ");
@@ -253,8 +258,13 @@ public class Main_test extends JFrame implements ActionListener {
         space_label.setForeground(Color.LIGHT_GRAY);
 
         protein_label.setText("PROTEIN: 0.0/"+goalsdata[1]);
-        protein_label.setFont(new Font("Verdana", Font.BOLD,14));
+        protein_label.setFont(new Font("Verdana", Font.BOLD,20));
         protein_label.setForeground(Color.LIGHT_GRAY);
+
+        date_label.setText(String.valueOf(LocalDate.now()));
+        date_label.setFont(new Font("Verdana", Font.BOLD,15));
+        date_label.setForeground(Color.GRAY);
+
 
 
 
@@ -263,8 +273,9 @@ public class Main_test extends JFrame implements ActionListener {
         MainLabels.add(calorie_label);
         MainLabels.add(space_label);
         MainLabels.add(protein_label);
+        MainLabels.add(date_label);
 
-        MainLabels.setBackground(Color.BLACK);
+        MainLabels.setBackground(verydarkgray);
 
         buttons.add(panel);
 
@@ -342,14 +353,14 @@ public class Main_test extends JFrame implements ActionListener {
             myReader.close();
 
         } catch (FileNotFoundException e){
-            System.out.println("Error has occured");
+            System.out.println("no goals have been set");
         }
     }
 
     public static void save_data() {
 
         // Specify the file path
-        String filePath = String.valueOf(LocalDate.now()+".txt");
+        String filePath = "Logs/"+String.valueOf(LocalDate.now()+".txt");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             // Concatenate the variables and write to the file

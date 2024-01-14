@@ -105,7 +105,7 @@ public class a {
 
     public static void main(String[] args) {
         // readAndRemoveOldRecords();
-        deleteOldFiles("../");
+        deleteOldFiles("Logs/");
 
 
     }
