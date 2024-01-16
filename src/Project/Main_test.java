@@ -331,9 +331,9 @@ public class Main_test extends JFrame implements ActionListener {
     }
 
     private static void hovereffect(JButton button) {
-        button.setBorder(new LineBorder(Color.GRAY, 2));
-        button.setForeground(Color.LIGHT_GRAY);
-        button.setBackground(Color.DARK_GRAY);
+        button.setBorder(new LineBorder(Color.GRAY, 2)); //create borders around buttons
+        button.setForeground(Color.LIGHT_GRAY); //set button text color
+        button.setBackground(Color.DARK_GRAY); //set button background color
         button.setFocusPainted(false);
         button.addMouseListener(new MouseAdapter() {
             @Override
