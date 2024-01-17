@@ -1,5 +1,6 @@
 package Project;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -9,16 +10,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Scanner;
 
-public class Main_test extends JFrame implements ActionListener {
+public class Calorie_tracker extends JFrame implements ActionListener {
     //this declares where to use the logo
-    ImageIcon mainicon = new ImageIcon(("Config/Images/logo.png"));
 
+    ImageIcon mainicon = new ImageIcon("Config/Images/logo.png"); //this will give the icons to the program
     //this declares stuff that will be used in the program
     static double saveprotein = 0;
     static int savecalories = 0;
@@ -41,10 +43,12 @@ public class Main_test extends JFrame implements ActionListener {
     JPanel buttons = new JPanel();
     JPanel MainLabels = new JPanel();
 
-    Main_test() {
+    Calorie_tracker() {
         //if the data file does not exist it should create a new one in data folder with name of current date (2024-01-16 < example) and make it a text file
         if (!Files.exists(Paths.get("Config/Data/" + LocalDate.now() + ".txt"))) {
+            check_file();
             create_logs();
+            createimage();
         }
         //run these to get the data from files
         goals_reader();
@@ -95,6 +99,8 @@ public class Main_test extends JFrame implements ActionListener {
                             total_calories += calories;
                             savecalories = calories;
                             break;
+                        }else{
+                            calories_input = (String) JOptionPane.showInputDialog(f, "Error, please re-enter the number", "", JOptionPane.PLAIN_MESSAGE, null, null, 0);
                         }
                         break;
                     } catch (NumberFormatException eInt) {
@@ -114,6 +120,8 @@ public class Main_test extends JFrame implements ActionListener {
                             show_food_label = true;
                             break;
 
+                        }else{
+                            protein_input = (String) JOptionPane.showInputDialog(f, "Error, please re-enter the number", "", JOptionPane.PLAIN_MESSAGE, null, null, null);
                         }
                         break;
                     } catch (NumberFormatException eDouble) {
@@ -140,6 +148,8 @@ public class Main_test extends JFrame implements ActionListener {
                         if (calories > 0) {
                             calorie_goal = calories;
                             break;
+                        }else{
+                            calories_input = (String) JOptionPane.showInputDialog(f, "Error, please re-enter the number (int)", "", JOptionPane.PLAIN_MESSAGE, null, null, null);
                         }
                     } catch (NumberFormatException eInt) {
                         calories_input = (String) JOptionPane.showInputDialog(f, "Error, please re-enter the number (int)", "", JOptionPane.PLAIN_MESSAGE, null, null, null);
@@ -154,6 +164,8 @@ public class Main_test extends JFrame implements ActionListener {
                             protein_goal = protein;
                             save_goals();
                             break;
+                        }else{
+                            protein_input = (String) JOptionPane.showInputDialog(f, "Error, please re-enter the number", "", JOptionPane.PLAIN_MESSAGE, null, null, null);
                         }
                     } catch (NumberFormatException eDouble) {
                         protein_input = (String) JOptionPane.showInputDialog(f, "Error, please re-enter the number", "", JOptionPane.PLAIN_MESSAGE, null, null, null);
@@ -297,14 +309,46 @@ public class Main_test extends JFrame implements ActionListener {
         f.setSize(500, 500);
         //make the program unable to be resized
         f.setResizable(false);
-        f.show();
+        f.setVisible(true);
 
     }
 
     public static void main(String[] args) {
-        new Main_test();
+        new Calorie_tracker();
     }
 
+    public static void createimage (){ //this will create an image for the program
+        int width = 16;
+        int height = 16;
+
+        // Create a BufferedImage with specified width and height
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        // Set the entire image to black
+        Graphics2D g = image.createGraphics();
+        g.setColor(verydarkgray);
+        g.fillRect(0, 0, width, height);
+
+        // Draw the letter "C" in the middle of the image
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        FontMetrics fontMetrics = g.getFontMetrics();
+        int x = (width - fontMetrics.stringWidth("C")) / 2;
+        int y = (height - fontMetrics.getHeight()) / 2 + fontMetrics.getAscent();
+        g.drawString("C", x, y);
+
+        // Dispose the graphics context to free up resources
+        g.dispose();
+
+        // Save the BufferedImage to a file
+        try {
+            File outputImageFile = new File(System.getProperty("user.dir")+"/Config/Images/logo.png");
+            ImageIO.write(image, "png", outputImageFile);
+            System.out.println("Custom image file created successfully: " + outputImageFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static void save_goals() {
         try {
             FileWriter myWriter = new FileWriter("Config/Goals/goals.txt");
@@ -414,7 +458,7 @@ public class Main_test extends JFrame implements ActionListener {
             writer.newLine(); // Add a newline for the next set of variables
 
         } catch (IOException e) {
-           e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -448,6 +492,33 @@ public class Main_test extends JFrame implements ActionListener {
         }
 
     }
+    public static void check_file(){
+        String currentDirectory = System.getProperty("user.dir");
+        File targetDirectory = new File(currentDirectory, "Config");
+
+        if (targetDirectory.exists()) {
+            System.out.println("Directory already exists.");
+        } else {
+            if (targetDirectory.mkdir()) {
+                File dataDirectory = new File(targetDirectory, "Data");
+                File goalsDirectory = new File(targetDirectory, "Goals");
+                File imagesDirectory = new File(targetDirectory, "Images");
+                File logsDirectory = new File(targetDirectory, "Logs");
+
+                // Create the files on disk
+                if (dataDirectory.mkdir() && goalsDirectory.mkdir() && logsDirectory.mkdir() && imagesDirectory.mkdir()) {
+                    //print only if all 4 files are created
+                    System.out.println("Directory and files created successfully.");
+                } else {
+                    System.out.println("Failed to create one or more files.");
+                }
+            } else {
+                System.out.println("Failed to create directory.");
+            }
+        }
+    }
+
+
 
     @Override
     public void actionPerformed(ActionEvent e) { //this is used to catch action
