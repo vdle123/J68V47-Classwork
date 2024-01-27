@@ -3,16 +3,19 @@ package Project;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.awt.event.*;
 import java.io.*;
 import java.time.LocalDate;
 
 public class Main_test extends JFrame implements ActionListener {
-    ImageIcon mainicon = new ImageIcon(("Images/logo.png"));
+    ImageIcon mainicon = new ImageIcon(("src/Project/Configs/Images/logo.png"));
     static Date_Manager date_manager = new Date_Manager(); //access date manager class
     static double saveprotein = 0;
     static int savecalories = 0;
@@ -24,19 +27,31 @@ public class Main_test extends JFrame implements ActionListener {
     String calories_input = "";
     String protein_input = "";
     static int total_calories = 0;
-    static float total_protein = 0;
+    static double total_protein = 0;
     static int calorie_goal = 0;
     static double protein_goal = 0;
 
     static String[]goalsdata = {"",""};
+    static String[]loggeddata = {"",""};
     static Color verydarkgray = new Color(27,27,27);
 
     Boolean show_food_label = false; //if true it will show a label that food has been added.
     JPanel buttons = new JPanel();
     JPanel MainLabels = new JPanel();
     Main_test() {
-        //System.out.println("Resource URL: " + "../../Images/logo.png");
+        //create_logs();
+        if(Files.exists(Paths.get("src/Project/Configs/Data/"+String.valueOf(LocalDate.now())+".txt"))){
+            System.out.println("does exist");
+        }else{
+            create_logs();
+        }
         goals_reader();
+        logged_data();
+        log_data();
+        //save_data();
+        total_calories = Integer.parseInt(loggeddata[0]);
+        total_protein = Double.parseDouble(loggeddata[1]);
+
         f = new JFrame("Calorie Tracker");
         f.setIconImage(mainicon.getImage());
         l = new JLabel("");
@@ -63,7 +78,7 @@ public class Main_test extends JFrame implements ActionListener {
             @Override
             //This will ask for food name, calories and protein once the button is pressed
             public void actionPerformed(ActionEvent e) {
-                food_name =JOptionPane.showInputDialog(f,"Enter name of the food","",JOptionPane.PLAIN_MESSAGE);
+                food_name =(String) JOptionPane.showInputDialog(f,"Enter name of the food","",JOptionPane.PLAIN_MESSAGE);
                 calories_input =JOptionPane.showInputDialog(f,"Enter the amount of calories","",JOptionPane.PLAIN_MESSAGE);
 
                 while(true){
@@ -73,7 +88,7 @@ public class Main_test extends JFrame implements ActionListener {
                         if(calories>= 0){               //this is put for 0 because water might be logged, which has no calories nor protein
                             total_calories+=calories;
                             savecalories=calories;
-                            update_calories();
+                            //update_calories();
                             break;
                         }else{
                             System.out.println("Please enter a positive number");
@@ -161,66 +176,61 @@ public class Main_test extends JFrame implements ActionListener {
             //This will handle the logs
             @Override
             public void actionPerformed(ActionEvent e) {
-                f.setVisible(false);
-                logs_frame = new JFrame("Logs");
-                logs_label = new JLabel("blablabla");
 
-                logs_frame.setBackground(Color.RED);
-                logs_frame.setSize(500,500);
+                JFrame logs_frame = new JFrame("Data Log - "+String.valueOf(LocalDate.now()));
+                logs_frame.setIconImage(mainicon.getImage());
+                logs_frame.setBackground(verydarkgray);
 
-                String[][] data = {
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"apple","300","2.4"},
-                        {"","",""},
-                        {"apple","300","2.4"},
+                // Create a table model with column names
+                DefaultTableModel tableModel = new DefaultTableModel();
+                tableModel.addColumn("Food");
+                tableModel.addColumn("Calories");
+                tableModel.addColumn("Protein");
 
-                        {"onion","200","1.0"}
-                };
-                String[] columnNames = {"Food", "Calories", "Protein"};
 
-                log_table = new JTable(data,columnNames){
-                    public boolean isCellEditable(int row, int column){
+                // Create a JTable with the table model
+                JTable table = new JTable(tableModel){
+                      public boolean isCellEditable(int row, int column){
                         return false;
                     }
                 };
-                log_table.setBounds(30,40,200,300);
-                log_table.setRowSelectionAllowed(false);
-                JScrollPane sp = new JScrollPane(log_table);
-                logs_frame.add(sp);
+
+                // Create a JScrollPane to hold the table
+                JScrollPane scrollPane = new JScrollPane(table);
+                scrollPane.setBackground(verydarkgray);
 
 
+                // Add the scroll pane to the frame
+                logs_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                JViewport viewport = scrollPane.getViewport();
+                viewport.setBackground(verydarkgray);
+                logs_frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+                logs_frame.getContentPane().setBackground(verydarkgray);
+
+                logs_frame.getContentPane().setBackground(verydarkgray);
+
+                // Read data from the file and populate the table
+                read_data(tableModel);
+                table.setRowSelectionAllowed(false);
+
+                table.setBackground(verydarkgray);
+                table.setForeground(Color.LIGHT_GRAY);
+
+                table.getTableHeader().setBackground(Color.DARK_GRAY);
+                table.getTableHeader().setForeground(Color.LIGHT_GRAY);
+
+                logs_frame.setBackground(verydarkgray);
+                scrollPane.setBackground(verydarkgray);
+                scrollPane.setForeground(verydarkgray);
+
+                logs_frame.setSize(400, 300);
+                logs_frame.setBackground(verydarkgray);
                 logs_frame.setResizable(false);
-                logs_frame.show();
+                logs_frame.setLocationRelativeTo(null);
+                logs_frame.setVisible(true);
+
+
+
 
             }
         });
@@ -243,13 +253,16 @@ public class Main_test extends JFrame implements ActionListener {
 
 
         MainLabels.setLayout(new BoxLayout(MainLabels, BoxLayout.Y_AXIS));
-        MainLabels.setBorder(new EmptyBorder(new Insets(30, 130, 5, 100)));
+        MainLabels.setBorder(new EmptyBorder(new Insets(30, 130, 5, 10)));
 
         l.setText("CALORIE TRACKER");
         l.setFont(new Font("Verdana",Font.BOLD,20));
         l.setForeground(Color.LIGHT_GRAY);
 
-        calorie_label.setText("CALORIES: 0/"+goalsdata[0]);
+        calorie_label.setText("CALORIES: "+ loggeddata[0]+ "/"+goalsdata[0]);
+        if (loggeddata[0]==null){
+            calorie_label.setText("CALORIES: 0/"+goalsdata[0]);
+        }
         calorie_label.setFont(new Font("Verdana",Font.BOLD,20));
         calorie_label.setForeground(Color.LIGHT_GRAY);
 
@@ -257,7 +270,7 @@ public class Main_test extends JFrame implements ActionListener {
         space_label.setFont(new Font("Verdana",Font.BOLD,1));
         space_label.setForeground(Color.LIGHT_GRAY);
 
-        protein_label.setText("PROTEIN: 0.0/"+goalsdata[1]);
+        protein_label.setText("PROTEIN: "+loggeddata[1]+"/"+goalsdata[1]);
         protein_label.setFont(new Font("Verdana", Font.BOLD,20));
         protein_label.setForeground(Color.LIGHT_GRAY);
 
@@ -298,7 +311,7 @@ public class Main_test extends JFrame implements ActionListener {
     public static void save_goals(){
         System.out.println("The goals have been saved");
         try {
-            FileWriter myWriter = new FileWriter("goals.txt");
+            FileWriter myWriter = new FileWriter("src/Project/Configs/Goals/goals.txt");
             myWriter.write(String.valueOf(calorie_goal));
             myWriter.write("\n");
             myWriter.write(String.valueOf(protein_goal));
@@ -307,14 +320,16 @@ public class Main_test extends JFrame implements ActionListener {
         } catch (IOException e) {
             System.out.println("error");
         }
+
         goals_reader();
+        logged_data();
         calorie_label.setText("CALORIES: "+total_calories+"/"+goalsdata[0]);
         protein_label.setText("PROTEIN: "+total_protein+"/"+goalsdata[1]);
 
     }
     public static void update_calories(){
         System.out.println("calories updated");
-
+        log_data();
         calorie_label.setText("CALORIES: "+total_calories+"/"+goalsdata[0]);
         protein_label.setText("PROTEIN: "+total_protein+"/"+goalsdata[1]);
     }
@@ -337,10 +352,25 @@ public class Main_test extends JFrame implements ActionListener {
             }
         });
     }
+    public static void read_data(DefaultTableModel model) {
+        String filePath = "src/Project/Configs/Logs/" + String.valueOf(LocalDate.now() + ".txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Split the line into an array of strings using the comma as a delimiter
+                String[] data = line.split(",");
+                model.addRow(data);
+            }
+            System.out.println("Data read from file successfully.");
+        } catch (IOException e) {
+            System.out.println("Error reading data from file.");
+        }
+    }
     public static void goals_reader(){
         try{
             int i = 0;
-            File myObj = new File("goals.txt");
+            File myObj = new File("src/Project/Configs/Goals/goals.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()){
 
@@ -356,22 +386,76 @@ public class Main_test extends JFrame implements ActionListener {
             System.out.println("no goals have been set");
         }
     }
+    public static void logged_data(){
+        try{
+            int i = 0;
+            File myObj = new File("src/Project/Configs/Data/"+String.valueOf(LocalDate.now())+".txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()){
+
+                String data = myReader.nextLine();
+                loggeddata[i]=data;
+                System.out.println(loggeddata[i]);
+                i++;
+
+            }
+            myReader.close();
+
+        } catch (FileNotFoundException e){
+            System.out.println("");
+        }
+    }
 
     public static void save_data() {
 
         // Specify the file path
-        String filePath = "Logs/"+String.valueOf(LocalDate.now()+".txt");
+        String filePath = "src/Project/Configs/Logs/"+String.valueOf(LocalDate.now()+".txt");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            // Concatenate the variables and write to the file
-            writer.write(food_name + "," + savecalories + "," + saveprotein);
-            writer.newLine(); // Add a newline for the next set of variables
-            System.out.println("Data written to file successfully.");
+                System.out.println(food_name);
+                // Concatenate the variables and write to the file
+                writer.write(food_name + "," + savecalories + "," + saveprotein);
+                writer.newLine(); // Add a newline for the next set of variables
+                System.out.println("Data written to file successfully.");
+
         } catch (IOException e) {
             System.out.println("error");
         }
         System.out.println("the data has been saved");
     }
+
+    public static void log_data() {
+
+        // Specify the file path
+        String filePath = "src/Project/Configs/Data/"+String.valueOf(LocalDate.now()+".txt");
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+                // Concatenate the variables and write to the file
+                writer.write(String.valueOf(total_calories));
+                writer.write("\n");
+                writer.write(String.valueOf(total_protein));
+                writer.newLine(); // Add a newline for the next set of variables
+                System.out.println("Data written to file successfully.");
+            } catch (IOException e) {
+                System.out.println("error");
+            }
+            System.out.println("the data has been saved");
+        }
+        public static void create_logs(){
+            String filePath = "src/Project/Configs/Data/"+String.valueOf(LocalDate.now()+".txt");
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+                    writer.write("0");
+                    writer.write("\n");
+                    writer.write("0.0");
+                    writer.newLine(); // Add a newline for the next set of variables
+
+
+            } catch (IOException e) {
+                System.out.println("error");
+            }
+            System.out.println("the data has been created");
+
+        }
 
     @Override
     public void actionPerformed(ActionEvent e) {

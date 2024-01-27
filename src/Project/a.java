@@ -105,8 +105,13 @@ public class a {
 
     public static void main(String[] args) {
         // readAndRemoveOldRecords();
-        deleteOldFiles("Logs/");
+        //deleteOldFiles("Logs/");
+        test();
 
 
+    }
+    public static void test(){
+        String currentDirectory = System.getProperty("user.dir");
+        System.out.println("Current Working Directory: " + currentDirectory+"/src/Project/Configs" );
     }
 }
